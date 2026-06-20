@@ -15,3 +15,10 @@ out/
 # File temporary
 *.log
 *.swp
+
+# Skrip operasional pribadi
+scripts/keeper.js
+scripts/01_farm.sh
+scripts/02_swap.sh
+scripts/03_check.sh
+scripts/rebalance_pools.sh
