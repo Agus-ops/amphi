@@ -1,0 +1,17 @@
+# Environment (private key)
+.env
+
+# Logs operasional
+logs/
+
+# Dependensi Node (jika masih ada)
+node_modules/
+
+# Folder build/cache
+broadcast/
+cache/
+out/
+
+# File temporary
+*.log
+*.swp
