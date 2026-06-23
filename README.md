@@ -9,6 +9,8 @@ Simulates capital rotation between crypto risk‑on assets and commodity safe‑
 
 ## Overview
 
+**Live App:** [https://amphi-sandbox.vercel.app](https://amphi-sandbox.vercel.app)
+
 | Layer | Description |
 |-------|-------------|
 | **Official Economy** | 7 oracle‑backed assets (crypto + commodities), 6 liquidity pools, 3 yield vaults |
