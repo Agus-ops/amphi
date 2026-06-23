@@ -1,45 +1,94 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+/// @title RewardPool
+/// @notice ETH sink for a single commodity vault.
+/// @dev Receives ETH from PremiumCommodityFaucet. Only the registered vault can withdraw.
+///      Vault address can be set once by the owner. No admin withdraw of user funds.
 contract RewardPool {
-    event Received(address indexed from, uint256 amount);
-    event VaultSet(address indexed oldVault, address indexed newVault);
-    event RewardsClaimed(address indexed vault, uint256 amount);
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    // ─────────────────────────────────────────────────────────
+    // Custom Errors
+    // ─────────────────────────────────────────────────────────
+    error ZeroAddress();
+    error ZeroAmount();
+    error NotAuthorized();
+    error VaultAlreadySet();
+    error InsufficientBalance();
+    error TransferFailed();
 
+    // ─────────────────────────────────────────────────────────
+    // Events
+    // ─────────────────────────────────────────────────────────
+    event Received(address indexed from, uint256 amount);
+    event VaultSet(address indexed vault);
+    event RewardsClaimed(address indexed vault, uint256 amount);
+    event OwnershipTransferred(address indexed oldOwner, address indexed newOwner);
+
+    // ─────────────────────────────────────────────────────────
+    // State
+    // ─────────────────────────────────────────────────────────
     address public vault;
     address public owner;
 
-    modifier onlyOwner() { require(msg.sender == owner, "ONLY_OWNER"); _; }
-    modifier onlyVault() { require(msg.sender == vault, "ONLY_VAULT"); _; }
+    modifier onlyOwner() {
+        if (msg.sender != owner) revert NotAuthorized();
+        _;
+    }
 
-    constructor(address _vault, address _owner) {
-        require(_owner != address(0), "ZERO_OWNER");
-        vault = _vault;
+    modifier onlyVault() {
+        if (msg.sender != vault) revert NotAuthorized();
+        _;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Constructor
+    // ─────────────────────────────────────────────────────────
+    constructor(address _owner) {
+        if (_owner == address(0)) revert ZeroAddress();
         owner = _owner;
-        emit OwnershipTransferred(address(0), _owner);
     }
 
+    // ─────────────────────────────────────────────────────────
+    // Vault Setup (one-time)
+    // ─────────────────────────────────────────────────────────
     function setVault(address _vault) external onlyOwner {
-        require(_vault != address(0), "ZERO_VAULT");
-        emit VaultSet(vault, _vault);
+        if (_vault == address(0)) revert ZeroAddress();
+        if (vault != address(0)) revert VaultAlreadySet();
         vault = _vault;
+        emit VaultSet(_vault);
     }
 
-    function setOwner(address newOwner) external onlyOwner {
-        require(newOwner != address(0), "ZERO_OWNER");
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-    }
-
+    // ─────────────────────────────────────────────────────────
+    // Reward Distribution (only by vault)
+    // ─────────────────────────────────────────────────────────
     function claimRewards(uint256 amount) external onlyVault {
-        require(amount > 0, "ZERO_AMOUNT");
-        require(address(this).balance >= amount, "INSUFFICIENT_BALANCE");
+        if (amount == 0) revert ZeroAmount();
+        if (address(this).balance < amount) revert InsufficientBalance();
         (bool ok, ) = vault.call{value: amount}("");
-        require(ok, "TRANSFER_FAILED");
+        if (!ok) revert TransferFailed();
         emit RewardsClaimed(vault, amount);
     }
 
-    receive() external payable { emit Received(msg.sender, msg.value); }
-    function totalRewards() external view returns (uint256) { return address(this).balance; }
+    // ─────────────────────────────────────────────────────────
+    // ETH Reception (from PremiumCommodityFaucet)
+    // ─────────────────────────────────────────────────────────
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Admin
+    // ─────────────────────────────────────────────────────────
+    function transferOwnership(address _newOwner) external onlyOwner {
+        if (_newOwner == address(0)) revert ZeroAddress();
+        emit OwnershipTransferred(owner, _newOwner);
+        owner = _newOwner;
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // View
+    // ─────────────────────────────────────────────────────────
+    function totalRewards() external view returns (uint256) {
+        return address(this).balance;
+    }
 }

@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./Interfaces.sol";
+interface IERC20 {
+    function balanceOf(address) external view returns (uint256);
+    function transfer(address, uint256) external returns (bool);
+    function transferFrom(address, address, uint256) external returns (bool);
+}
 
 contract AmphiPair {
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -10,6 +14,10 @@ contract AmphiPair {
     event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to);
     event Swap(address indexed sender, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out, address indexed to);
     event Sync(uint112 reserve0, uint112 reserve1);
+
+    string public name;
+    string public symbol;
+    uint8 public constant decimals = 18;
 
     address public factory;
     address public token0;
@@ -35,6 +43,8 @@ contract AmphiPair {
         require(token0 == address(0), "ALREADY_INIT");
         token0 = _token0;
         token1 = _token1;
+        name = "Amphi LP Token";
+        symbol = "AMPHI-LP";
     }
 
     function _safeTransfer(address token, address to, uint256 value) private {
@@ -70,6 +80,7 @@ contract AmphiPair {
     }
 
     function burn(address to) external lock returns (uint256 amount0, uint256 amount1) {
+        require(to != address(0), "BURN_TO_ZERO");
         (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
         uint256 balance0 = IERC20(token0).balanceOf(address(this));
         uint256 balance1 = IERC20(token1).balanceOf(address(this));
@@ -88,6 +99,8 @@ contract AmphiPair {
     }
 
     function swap(uint256 amount0Out, uint256 amount1Out, address to) external lock {
+        require(to != token0 && to != token1, "INVALID_TO");
+        require(to != address(0), "INVALID_TO");
         require(amount0Out > 0 || amount1Out > 0, "INSUFFICIENT_OUTPUT_AMOUNT");
         (uint112 _reserve0, uint112 _reserve1, ) = getReserves();
         require(amount0Out < _reserve0 && amount1Out < _reserve1, "INSUFFICIENT_LIQUIDITY");
@@ -106,7 +119,9 @@ contract AmphiPair {
         emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to);
     }
 
-    function sync() external { _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this))); }
+    function sync() external lock {
+        _update(IERC20(token0).balanceOf(address(this)), IERC20(token1).balanceOf(address(this)));
+    }
 
     function _update(uint256 balance0, uint256 balance1) private {
         require(balance0 <= type(uint112).max && balance1 <= type(uint112).max, "OVERFLOW");
@@ -133,9 +148,11 @@ contract AmphiPair {
         allowance[msg.sender][spender] = value; emit Approval(msg.sender, spender, value); return true;
     }
     function transfer(address to, uint256 value) external returns (bool) {
+        require(to != address(0), "TRANSFER_TO_ZERO");
         balanceOf[msg.sender] -= value; balanceOf[to] += value; emit Transfer(msg.sender, to, value); return true;
     }
     function transferFrom(address from, address to, uint256 value) external returns (bool) {
+        require(to != address(0), "TRANSFER_TO_ZERO");
         allowance[from][msg.sender] -= value; balanceOf[from] -= value; balanceOf[to] += value; emit Transfer(from, to, value); return true;
     }
 }

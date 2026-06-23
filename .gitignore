@@ -1,24 +1,36 @@
-# Environment (private key)
+# Environment
 .env
 
-# Logs operasional
+# Logs
 logs/
+*.log
 
-# Dependensi Node (jika masih ada)
+# Dependencies
 node_modules/
 
-# Folder build/cache
+# Build artifacts
 broadcast/
 cache/
 out/
 
-# File temporary
-*.log
-*.swp
+# Archive
+archive/
 
-# Skrip operasional pribadi
-scripts/keeper.js
+# Temporary files
+*.tmp
+*.bak
+*.hex
+
+# Script operasional pribadi
 scripts/01_farm.sh
 scripts/02_swap.sh
 scripts/03_check.sh
 scripts/rebalance_pools.sh
+scripts/balance_*.sh
+scripts/topup.sh
+scripts/check_pools.sh
+
+# Deployment artifacts dari script lama
+deploy_log.txt
+deploy_phase*.txt
+lib/
