@@ -91,23 +91,17 @@ Simulates capital rotation between crypto risk‑on assets and commodity safe‑
 ## Getting Started
 
 ### Deploy contracts
-\`\`\`bash
 forge build
 forge script script/FullDeployFinal.s.sol --rpc-url $RPC_URL --private-key $PK --broadcast --legacy --slow -vvv
-\`\`\`
 
 ### Run oracle keeper
-\`\`\`bash
 pm2 start scripts/keeper.js --name amphi-keeper
 pm2 save
-\`\`\`
 
 ### Run frontend
-\`\`\`bash
 cd frontend
 npm install
 npm run dev
-\`\`\`
 
 ---
 
