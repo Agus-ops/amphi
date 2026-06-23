@@ -147,6 +147,9 @@ export default function App() {
         <a href={`${GIWA_SEPOLIA.explorerUrl}/address/0x77609Cef0019A377A1E4986Cb6d818677b26d3E5`} target="_blank" rel="noreferrer">
           0x7760…6d3E5 ↗
         </a>
+        <div style={{ marginTop: '10px' }}>
+          <a href="https://github.com/Agus-ops/amphi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>GitHub ↗</a>
+        </div>
       </div>
     </div>
   );
