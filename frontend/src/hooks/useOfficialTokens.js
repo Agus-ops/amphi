@@ -12,6 +12,10 @@ export function useOfficialTokens() {
       functionName: 'isOfficialToken',
       args: [addr],
     })),
+    query: {
+      refetchInterval: 30000,
+      staleTime: 60000,
+    },
   });
 
   const officialTokens = ALL_TOKENS
