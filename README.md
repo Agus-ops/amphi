@@ -1,4 +1,4 @@
-# Amphi Protocol v1.0.0 — Sandbox Economy Simulator
+# Amphi v1.0.0 — Sandbox Economy Simulator
 
 A two‑layer economic sandbox built on **GIWA Sepolia** (Chain ID 91342).  
 Simulates capital rotation between crypto risk‑on assets and commodity safe‑haven assets with real‑time oracle pricing, an AMM, yield vaults, and a premium faucet.
