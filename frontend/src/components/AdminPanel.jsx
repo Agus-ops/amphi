@@ -140,11 +140,11 @@ export function AdminPanel({ isConnected, isRightChain }) {
             <button className="amphi-btn amphi-btn-ghost" onClick={lookupTx} type="button">Look up</button>
 
             {txInfo && (
-              <div className="amphi-card-desc" style={{ marginTop: 10 }}>
-                To: {txInfo.to.slice(0, 8)}…{txInfo.to.slice(-6)}<br />
-                Confirmations: {String(txInfo.confirmations)}<br />
-                Status: {txInfo.executed ? "Executed" : "Pending"}<br />
-                Confirmed by you: {txInfo.confirmedByMe ? "Yes" : "No"}
+              <div style={{ marginTop: 12 }}>
+                <div className="amphi-row"><span className="amphi-row-label">To</span><span className="amphi-row-value">{txInfo.to.slice(0, 8)}…{txInfo.to.slice(-6)}</span></div>
+                <div className="amphi-row"><span className="amphi-row-label">Confirmations</span><span className="amphi-row-value">{String(txInfo.confirmations)}</span></div>
+                <div className="amphi-row"><span className="amphi-row-label">Status</span><span className="amphi-row-value">{txInfo.executed ? "Executed" : "Pending"}</span></div>
+                <div className="amphi-row"><span className="amphi-row-label">Confirmed by you</span><span className="amphi-row-value">{txInfo.confirmedByMe ? "Yes" : "No"}</span></div>
               </div>
             )}
 

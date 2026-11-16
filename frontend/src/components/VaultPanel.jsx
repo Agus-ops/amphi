@@ -131,9 +131,9 @@ export function VaultPanel({ isConnected, isRightChain }) {
         </div>
       )}
 
-      <div className="amphi-grid-full" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+      <div className="amphi-seg amphi-grid-full" style={{ marginBottom: 16 }}>
         {VAULT_OPTS.map((v) => (
-          <button key={v.id} onClick={() => setActiveVault(v)} className="amphi-btn-ghost" style={{ flex: 1, padding: "8px", borderRadius: 8, background: activeVault.id === v.id ? "#1C1408" : "transparent", color: activeVault.id === v.id ? "#D9A85C" : "#8A8F9C", borderColor: activeVault.id === v.id ? "#7A6238" : "#1F2530" }}>
+          <button key={v.id} type="button" onClick={() => setActiveVault(v)} className={`amphi-seg-btn ${activeVault.id === v.id ? "active" : ""}`}>
             {v.name}
           </button>
         ))}
@@ -142,25 +142,20 @@ export function VaultPanel({ isConnected, isRightChain }) {
       <div className="amphi-card amphi-card--gold">
         <div className="amphi-card-title"><span><Lock size={13} /> Lock m{activeVault.name}</span></div>
         <div className="amphi-card-desc">Pool total rewards: <strong>{totalRewards != null ? `${formatUnits(totalRewards, 18)} ETH` : "…"}</strong></div>
-        <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+        <div className="amphi-seg" style={{ marginTop: 10 }}>
           {DURATIONS.map((d) => (
             <button key={d.label} type="button" onClick={() => setDuration(d)}
-              className="amphi-btn-ghost" style={{
-                flex: 1, padding: "8px 4px", fontSize: 11, borderRadius: 10,
-                borderColor: duration.label === d.label ? "#7A6238" : "#1F2530",
-                color: duration.label === d.label ? "#D9A85C" : "#8A8F9C",
-                background: duration.label === d.label ? "#1C1408" : "transparent",
-              }}>
-              {d.label}<br /><span style={{ fontSize: 9.5 }}>{d.weight}</span>
+              className={`amphi-seg-btn ${duration.label === d.label ? "active" : ""}`}>
+              {d.label}<small>{d.weight}</small>
             </button>
           ))}
         </div>
-        <div className="amphi-card-desc" style={{ marginTop: 8 }}>
+        <div className="amphi-balance-line" style={{ marginTop: 10 }}>
           Available: <strong>{tokenBalance != null ? Number(formatUnits(tokenBalance, 18)).toLocaleString(undefined, { maximumFractionDigits: 4 }) : "…"} m{activeVault.name}</strong>
         </div>
-        <div className="amphi-field" style={{ display: "flex", gap: 6 }}>
-          <input className="amphi-input" type="number" placeholder={`0.00 m${activeVault.name}`} value={amount} onChange={(e) => setAmount(e.target.value)} style={{ flex: 1 }} />
-          <button className="amphi-btn-ghost" type="button" onClick={() => tokenBalance != null && setAmount(formatUnits(tokenBalance, 18))} style={{ padding: "0 12px", borderRadius: 8, fontSize: 11 }}>
+        <div className="amphi-field">
+          <input className="amphi-input" type="number" placeholder={`0.00 m${activeVault.name}`} value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <button className="amphi-max-btn" type="button" onClick={() => tokenBalance != null && setAmount(formatUnits(tokenBalance, 18))}>
             Max
           </button>
         </div>
@@ -177,10 +172,10 @@ export function VaultPanel({ isConnected, isRightChain }) {
           <div className="amphi-card-desc">No active position yet.</div>
         ) : (
           <>
-            <div className="amphi-card-desc">
-              Locked: <strong>{formatUnits(position.amount, 18)} m{activeVault.name}</strong><br />
-              {isMature ? "Unlocked — ready to withdraw" : `Unlocks ${new Date(position.unlockTime * 1000).toLocaleString()}`}<br />
-              Pending reward: <strong>{pendingReward != null ? `${formatUnits(pendingReward, 18)} ETH` : "…"}</strong>
+            <div style={{ marginTop: 10 }}>
+              <div className="amphi-row"><span className="amphi-row-label">Locked</span><span className="amphi-row-value">{formatUnits(position.amount, 18)} m{activeVault.name}</span></div>
+              <div className="amphi-row"><span className="amphi-row-label">Status</span><span className="amphi-row-value">{isMature ? "Unlocked — ready to withdraw" : `Unlocks ${new Date(position.unlockTime * 1000).toLocaleString()}`}</span></div>
+              <div className="amphi-row"><span className="amphi-row-label">Pending reward</span><span className="amphi-row-value">{pendingReward != null ? `${formatUnits(pendingReward, 18)} ETH` : "…"}</span></div>
             </div>
             <button className="amphi-btn amphi-btn-ghost" onClick={() => runClaimOrUnlock("claimReward")} disabled={busy || !pendingReward || pendingReward === 0n}>
               Claim Reward {pendingReward != null && pendingReward > 0n ? `(${formatUnits(pendingReward, 18)} ETH)` : ""}

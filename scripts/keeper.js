@@ -92,10 +92,14 @@ async function updatePrices() {
 
     try {
         // Update crypto prices
+        // NOTE (local patch 2026-11-15, Yuuki): explicit gasLimit — this RPC's
+        // eth_estimateGas under-estimates these calls (~60.1k est. vs 62.1k actual),
+        // which made the commodity update run out of gas. 300k is ample headroom.
         const tx1 = await oracle.updateCryptoPrices(
             crypto.ethUsd,
             crypto.btcUsd,
-            crypto.solUsd
+            crypto.solUsd,
+            { gasLimit: 300000 }
         );
         console.log(`  Crypto tx sent: ${tx1.hash}`);
         await tx1.wait();
@@ -105,7 +109,8 @@ async function updatePrices() {
         const tx2 = await oracle.updateCommodityPrices(
             metals.xauUsd,
             metals.xagUsd,
-            metals.xptUsd
+            metals.xptUsd,
+            { gasLimit: 300000 }
         );
         console.log(`  Commodity tx sent: ${tx2.hash}`);
         await tx2.wait();

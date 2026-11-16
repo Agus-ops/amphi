@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAccount, useChainId, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Droplets, ArrowLeftRight, Lock, User, ShieldCheck } from "lucide-react";
 import { FaucetPanel } from "./components/FaucetPanel";
 import { SwapPanel } from "./components/SwapPanel";
 import { VaultPanel } from "./components/VaultPanel";
@@ -15,6 +16,19 @@ import { ORACLE_ABI } from "./contracts/abis";
 import "./styles/amphi-theme.css";
 
 const TABS = ["Faucet", "Swap", "Vault", "Profile", "Admin"];
+
+const TAB_ICONS = {
+  Faucet: Droplets,
+  Swap: ArrowLeftRight,
+  Vault: Lock,
+  Profile: User,
+  Admin: ShieldCheck,
+};
+
+function fmtUsd(v, dp) {
+  if (v == null || !Number.isFinite(v)) return "—";
+  return "$" + v.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+}
 
 export default function App() {
   const { isConnected } = useAccount();
@@ -38,6 +52,15 @@ export default function App() {
   const goldOzNum = goldGramData ? (Number(goldGramData) / 1e18) * TROY_OZ_IN_GRAMS : null;
   const silverOzNum = silverGramData ? (Number(silverGramData) / 1e18) * TROY_OZ_IN_GRAMS : null;
   const platinumOzNum = platinumGramData ? (Number(platinumGramData) / 1e18) * TROY_OZ_IN_GRAMS : null;
+
+  const PRICES = [
+    { label: "ETH", value: fmtUsd(ethNum, 0) },
+    { label: "BTC", value: fmtUsd(btcNum, 0) },
+    { label: "SOL", value: fmtUsd(solNum, 2) },
+    { label: "XAU · Gold", value: fmtUsd(goldOzNum, 0), unit: "/oz" },
+    { label: "XAG · Silver", value: fmtUsd(silverOzNum, 2), unit: "/oz" },
+    { label: "XPT · Platinum", value: fmtUsd(platinumOzNum, 0), unit: "/oz" },
+  ];
 
   const [btcDominance, setBtcDominance] = useState(null);
   useEffect(() => {
@@ -83,16 +106,31 @@ export default function App() {
 
   return (
     <div className="amphi-app">
-      <div className="amphi-header">
+      <header className="amphi-header">
         <div className="amphi-brand">
-          <svg className="amphi-logo" width="26" height="26" viewBox="0 0 26 26" fill="none">
-            <circle cx="10" cy="13" r="8" fill="#6C8CFF" opacity="0.9" />
-            <circle cx="16" cy="13" r="8" fill="#D9A85C" opacity="0.9" />
+          <svg className="amphi-logo" width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <circle cx="13.5" cy="16" r="7.5" stroke="#8f9299" strokeWidth="2.4" />
+            <circle cx="19.5" cy="16" r="7.5" stroke="#c8a45d" strokeWidth="2.4" />
           </svg>
           <span className="amphi-wordmark"><span className="am">Am</span><span className="phi">phi</span></span>
         </div>
-        <ConnectButton />
-      </div>
+        <div className="amphi-header-actions">
+          <span className="amphi-net-badge"><span className="amphi-net-dot"></span>GIWA Sepolia · Testnet</span>
+          <ConnectButton />
+        </div>
+      </header>
+
+      <section className="amphi-prices" aria-label="Live oracle prices">
+        <div className="amphi-prices-head"><span>Live oracle prices</span><span>Amphi Oracle</span></div>
+        <div className="amphi-prices-grid">
+          {PRICES.map((p) => (
+            <div className="amphi-price-item" key={p.label}>
+              <span className="amphi-price-label">{p.label}</span>
+              <span className="amphi-price-value">{p.value}{p.unit && <span className="amphi-price-unit">{p.unit}</span>}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="amphi-gauge-wrap">
         <div className="amphi-gauge-label"><span>RISK-ON</span><span>RISK-OFF</span></div>
@@ -105,26 +143,29 @@ export default function App() {
         >
           <div className="amphi-gauge-marker" style={{ left: `${markerPos}%`, transition: "left 1s ease-in-out" }}></div>
         </div>
-        <div className="amphi-gauge-note">
-          {ethNum && btcNum && solNum && goldOzNum && silverOzNum && platinumOzNum
-            ? `ETH $${ethNum.toFixed(0)} · BTC $${btcNum.toFixed(0)} · SOL $${solNum.toFixed(2)}  |  XAU $${goldOzNum.toFixed(0)}/oz · XAG $${silverOzNum.toFixed(2)}/oz · XPT $${platinumOzNum.toFixed(0)}/oz`
-            : "Sandbox economy on GIWA Sepolia"}
-        </div>
       </div>
 
       <div className="amphi-body-layout">
         <div className="amphi-sidebar">
-          {TABS.map((tab) => (
-            <button key={tab} className={`amphi-side-item ${activeTab === tab ? "active" : ""}`} onClick={() => setActiveTab(tab)} type="button">
-              <span className="amphi-side-dot"></span>{tab}
-            </button>
-          ))}
+          {TABS.map((tab) => {
+            const Icon = TAB_ICONS[tab];
+            return (
+              <button key={tab} className={`amphi-side-item ${activeTab === tab ? "active" : ""}`} onClick={() => setActiveTab(tab)} type="button">
+                <Icon size={15} />{tab}
+              </button>
+            );
+          })}
         </div>
         <div className="amphi-main">
           <div className="amphi-tabs">
-            {TABS.map((tab) => (
-              <button key={tab} className={`amphi-tab ${activeTab === tab ? "active" : ""}`} onClick={() => setActiveTab(tab)} type="button">{tab}</button>
-            ))}
+            {TABS.map((tab) => {
+              const Icon = TAB_ICONS[tab];
+              return (
+                <button key={tab} className={`amphi-tab ${activeTab === tab ? "active" : ""}`} onClick={() => setActiveTab(tab)} type="button">
+                  <Icon size={14} />{tab}
+                </button>
+              );
+            })}
           </div>
           <div className="amphi-content">
             <div className="amphi-grid">
@@ -138,19 +179,22 @@ export default function App() {
         </div>
       </div>
 
-      <div style={{ textAlign: "center", padding: "20px", fontSize: 11, color: "var(--text-dim)" }}>
-        AmphiOracle:{" "}
-        <a href={`${GIWA_SEPOLIA.explorerUrl}/address/0x97791AaC465eBe648288201Ef061186D035BCf0f`} target="_blank" rel="noreferrer">
-          0x9779…BCf0f ↗
-        </a>
-        {" · "}AmphiRouterV3:{" "}
-        <a href={`${GIWA_SEPOLIA.explorerUrl}/address/0x77609Cef0019A377A1E4986Cb6d818677b26d3E5`} target="_blank" rel="noreferrer">
-          0x7760…6d3E5 ↗
-        </a>
-        <div style={{ marginTop: '10px' }}>
-          <a href="https://github.com/Agus-ops/amphi" target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>GitHub ↗</a>
+      <footer className="amphi-footer">
+        <div>
+          AmphiOracle:{" "}
+          <a href={`${GIWA_SEPOLIA.explorerUrl}/address/0x97791AaC465eBe648288201Ef061186D035BCf0f`} target="_blank" rel="noreferrer">
+            0x9779…BCf0f ↗
+          </a>
+          {" · "}AmphiRouterV3:{" "}
+          <a href={`${GIWA_SEPOLIA.explorerUrl}/address/0x77609Cef0019A377A1E4986Cb6d818677b26d3E5`} target="_blank" rel="noreferrer">
+            0x7760…6d3E5 ↗
+          </a>
         </div>
-      </div>
+        <div>
+          <a href="https://github.com/Agus-ops/amphi" target="_blank" rel="noreferrer">GitHub ↗</a>
+          {" · "}GIWA Sepolia · Testnet
+        </div>
+      </footer>
     </div>
   );
 }

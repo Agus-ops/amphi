@@ -145,9 +145,9 @@ export function FaucetPanel({ isConnected, isRightChain }) {
 
       <div className="amphi-card amphi-card--gold">
         <div className="amphi-card-title"><span><Coins size={13} /> Premium Faucet</span><small>max {fmtAmt(maxPerTx)} ETH/tx</small></div>
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+        <div className="amphi-seg" style={{ marginTop: 12, marginBottom: 12 }}>
           {["Gold", "Silver", "Platinum"].map((c) => (
-            <button key={c} type="button" onClick={() => setCommType(c)} className="amphi-btn-ghost" style={{ flex: 1, padding: "6px", fontSize: 12, borderRadius: 6, background: commType === c ? "#1C1408" : "transparent", color: commType === c ? "#D9A85C" : "#8A8F9C", borderColor: commType === c ? "#7A6238" : "#1F2530" }}>
+            <button key={c} type="button" onClick={() => setCommType(c)} className={`amphi-seg-btn ${commType === c ? "active" : ""}`}>
               {c}
             </button>
           ))}
@@ -165,7 +165,7 @@ export function FaucetPanel({ isConnected, isRightChain }) {
           </button>}
       </div>
 
-      {lastTx && <div className="amphi-card-desc"><a href={explorerTx(lastTx)} target="_blank" rel="noreferrer">View last tx ↗</a></div>}
+      {lastTx && <div className="amphi-txlink"><a href={explorerTx(lastTx)} target="_blank" rel="noreferrer">View last tx ↗</a></div>}
     </Fragment>
   );
 }

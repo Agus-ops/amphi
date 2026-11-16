@@ -128,34 +128,36 @@ export function SwapPanel({ isConnected, isRightChain }) {
             {safeTokenList.map((t) => <option key={t.symbol} value={t.symbol}>{t.symbol}</option>)}
           </select>
         </div>
-        <div className="amphi-card-desc" style={{ marginTop: -6, marginBottom: 6 }}>
+        <div className="amphi-balance-line">
           Balance: <strong>{balanceIn != null ? balanceIn.toLocaleString(undefined, { maximumFractionDigits: 4 }) : "…"} {tokenIn.symbol}</strong>
         </div>
-        <div className="amphi-field" style={{ display: "flex", gap: 6 }}>
-          <input className="amphi-input" type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} style={{ flex: 1 }} />
-          <button className="amphi-btn-ghost" type="button" onClick={() => balanceIn != null && setAmount(String(balanceIn))} style={{ padding: "0 12px", borderRadius: 8, fontSize: 11 }}>
+        <div className="amphi-field">
+          <input className="amphi-input" type="number" placeholder="0.00" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <button className="amphi-max-btn" type="button" onClick={() => balanceIn != null && setAmount(String(balanceIn))}>
             Max
           </button>
         </div>
-        <button className="amphi-btn amphi-btn-ghost" onClick={flip} type="button" style={{ marginTop: 8 }}>
-          <ArrowUpDown size={13} /> Flip
-        </button>
+        <div className="amphi-flip-row">
+          <button className="amphi-flip-btn" onClick={flip} type="button" aria-label="Flip tokens">
+            <ArrowUpDown size={15} />
+          </button>
+        </div>
         <div className="amphi-field">
           <select className="amphi-input" value={tokenOut.symbol} onChange={(e) => setTokenOut(safeTokenList.find(t => t.symbol === e.target.value))}>
             {safeTokenList.map((t) => <option key={t.symbol} value={t.symbol}>{t.symbol}</option>)}
           </select>
         </div>
-        <div className="amphi-card-desc" style={{ marginTop: -6, marginBottom: 6 }}>
+        <div className="amphi-balance-line">
           Balance: <strong>{balanceOut != null ? balanceOut.toLocaleString(undefined, { maximumFractionDigits: 4 }) : "…"} {tokenOut.symbol}</strong>
         </div>
-        <div className="amphi-card-desc">Route: {routeDisplay}</div>
+        <div className="amphi-card-desc" style={{ marginTop: 10 }}>Route: {routeDisplay}</div>
         
         {!isConnected ? <div className="amphi-notice">Connect your wallet to swap</div>
         : !isRightChain ? <div className="amphi-notice amphi-notice--warn">Wrong network — switch to GIWA Sepolia</div>
         : <button className="amphi-btn amphi-btn-crypto" onClick={runSwap} disabled={!canSwap}>
             {busy ? <><RefreshCw size={13} className="spinIcon" /> Processing…</> : `Swap ${tokenIn.symbol} → ${tokenOut.symbol}`}
           </button>}
-        {lastTx && <div className="amphi-card-desc"><a href={explorerTx(lastTx)} target="_blank" rel="noreferrer">View last tx ↗</a></div>}
+        {lastTx && <div className="amphi-txlink"><a href={explorerTx(lastTx)} target="_blank" rel="noreferrer">View last tx ↗</a></div>}
       </div>
     </>
   );

@@ -1,128 +1,908 @@
-:root{
-  --ink:#0B0E14; --panel:#11151D; --panel-line:#1F2530;
-  --gold:#D9A85C; --gold-dim:#7A6238; --crypto:#6C8CFF;
-  --text:#E8E6DD; --text-dim:#B8BCC6; --good:#7FBF8C;
+/* ============================================================
+   Amphi theme — restrained fintech system.
+   One accent (muted gold) on near-black. Hairline 1px borders,
+   no shadows on surfaces, one radius scale, one spacing scale.
+   All component classes used by the panels are defined here.
+   ============================================================ */
+
+:root {
+  /* Surfaces */
+  --ink: #0a0b0e;
+  --panel: #101216;
+  --panel-raised: #15181d;
+  --field: #0c0e11;
+
+  /* Lines */
+  --line: #22252c;
+  --line-soft: #1a1d23;
+  --line-strong: #343842;
+
+  /* Accent — muted gold, the single accent color */
+  --gold: #c8a45d;
+  --gold-hover: #d3b26c;
+  --gold-dim: #6e5b32;
+  --gold-ink: #171204;
+
+  /* Secondary data tone (risk gauge only) */
+  --crypto: #78818f;
+
+  /* Text */
+  --text: #eceef1;
+  --text-dim: #9aa1ac;
+  --text-faint: #666d78;
+
+  /* Status */
+  --good: #7fae8e;
+  --bad: #c97e6f;
+  --info: #8fa3bf;
+
+  /* Shape — one radius scale */
+  --r-sm: 8px;
+  --r-md: 12px;
 }
-*{box-sizing:border-box;}
-html,body,#root{
-  margin:0;padding:0;min-height:100%;width:100%;background:var(--ink);
-  overflow-x:hidden;
+
+* {
+  box-sizing: border-box;
 }
-html{height:100%;}
-body{font-family:'Inter',sans-serif;overflow-x:hidden;}
 
-.amphi-app{max-width:1320px;margin:0 auto;min-height:100vh;color:var(--text);background:var(--ink);}
-
-.amphi-header{
-  padding:18px 20px;border-bottom:1px solid var(--panel-line);
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+  background: var(--ink);
+  overflow-x: hidden;
 }
-.amphi-brand{font-weight:700;font-size:21px;display:flex;align-items:center;gap:8px;}
-.amphi-brand .dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--crypto));}
 
-.amphi-gauge-wrap{padding:14px 20px;border-bottom:1px solid var(--panel-line);}
-.amphi-gauge-label{display:flex;justify-content:space-between;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px;}
-.amphi-gauge-label span:first-child{color:var(--crypto);}
-.amphi-gauge-label span:last-child{color:var(--gold);}
-.amphi-gauge-track{height:7px;border-radius:6px;background:linear-gradient(90deg,var(--crypto) 0%,var(--crypto) 38%,var(--gold) 38%,var(--gold) 100%);position:relative;max-width:560px;}
-@media (min-width:860px){.amphi-gauge-track{max-width:none;}}
-.amphi-gauge-marker{position:absolute;top:-3px;width:12px;height:12px;background:#fff;border-radius:50%;transition:left 0.8s ease-in-out;}
-.amphi-gauge-note{font-size:10.5px;color:var(--text-dim);margin-top:7px;}
-
-.amphi-body-layout{display:flex;flex-direction:column;}
-
-.amphi-tabs{display:flex;padding:14px 20px 0;gap:6px;}
-.amphi-tab{flex:1;text-align:center;padding:9px 0;font-size:12px;font-weight:600;border-radius:10px;color:var(--text-dim);cursor:pointer;background:none;border:none;}
-.amphi-tab.active{background:#181D27;color:var(--text);border:1px solid var(--panel-line);}
-
-/* desktop sidebar, hidden on mobile */
-.amphi-sidebar{display:none;}
-
-.amphi-main{flex:1;}
-.amphi-content{padding:18px 20px 40px;}
-
-.amphi-grid{display:grid;grid-template-columns:1fr;gap:18px;}
-
-.amphi-card{background:#161B24;border:1px solid var(--panel-line);border-radius:16px;padding:18px;margin-bottom:18px;transition:border-color 0.25s ease,box-shadow 0.25s ease;}
-.amphi-card--gold{border-color:var(--gold-dim);box-shadow:0 0 0 1px rgba(217,168,92,0.08);}
-.amphi-card--crypto{border-color:#3A4A8F;box-shadow:0 0 0 1px rgba(108,140,255,0.08);}
-.amphi-card--mix{
-  border:1px solid transparent;
-  background:
-    linear-gradient(#161B24,#161B24) padding-box,
-    linear-gradient(135deg,var(--crypto),var(--gold)) border-box;
+html {
+  height: 100%;
 }
-.amphi-card-title{font-weight:600;font-size:15px;display:flex;justify-content:space-between;align-items:baseline;color:var(--text);}
-.amphi-card-title small{font-size:10px;color:var(--text-dim);font-weight:400;}
-.amphi-card-desc{font-size:11.5px;color:var(--text-dim);margin-top:4px;line-height:1.5;}
 
-.amphi-btn{width:100%;margin-top:12px;padding:11px;border-radius:10px;border:none;font-weight:600;font-size:13px;cursor:pointer;}
-.amphi-btn-gold{background:var(--gold);color:#1B1404;}
-.amphi-btn-crypto{background:var(--crypto);color:#0B0E14;}
-.amphi-btn-ghost{background:transparent;border:1px solid var(--panel-line);color:var(--text-dim);}
-.amphi-btn:disabled{background:#1C212B;color:#565C68;cursor:not-allowed;}
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+}
 
-.amphi-field{background:#0F1319;border:1px solid var(--panel-line);border-radius:12px;padding:11px 13px;margin-top:8px;}
-.amphi-input{background:transparent;border:none;color:var(--text);font-size:16px;width:100%;outline:none;}
+::selection {
+  background: rgba(200, 164, 93, 0.28);
+}
 
-.amphi-notice{font-size:11.5px;color:var(--text-dim);margin-top:10px;padding:8px 0;}
-.amphi-notice--warn{color:var(--gold);background:#161B24;border:1px solid var(--panel-line);border-radius:16px;padding:14px 16px;margin:0;}
+/* ---------- App frame ---------- */
 
-.amphi-quota-bar{height:5px;border-radius:4px;background:#1C212B;margin-top:10px;overflow:hidden;}
-.amphi-quota-fill{height:100%;background:var(--gold);}
-.amphi-quota-text{display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:5px;}
+.amphi-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
 
-.amphi-toast{position:fixed;top:16px;left:16px;right:16px;max-width:430px;margin:0 auto;background:#181D27;border:1px solid var(--panel-line);border-radius:10px;padding:10px 14px;font-size:12px;display:flex;justify-content:space-between;z-index:50;}
-.amphi-toast--success{border-color:var(--good);color:var(--good);}
-.amphi-toast--error{border-color:#D97A6C;color:#D97A6C;}
-.amphi-toast--info{border-color:var(--crypto);color:var(--crypto);}
-.amphi-toast a{color:inherit;font-size:11px;}
+.amphi-app a {
+  color: var(--gold);
+  text-decoration: none;
+}
+.amphi-app a:hover {
+  text-decoration: underline;
+}
 
-.amphi-placeholder{text-align:center;color:var(--text-dim);font-size:12px;padding:40px 0;grid-column:1/-1;}
+/* ---------- Header ---------- */
 
-.spinIcon{animation:amphi-spin 1s linear infinite;display:inline-block;}
-@keyframes amphi-spin{to{transform:rotate(360deg);}}
+.amphi-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
 
-/* ===== DESKTOP ===== */
-@media (min-width:860px){
-  .amphi-tabs{display:none;}
-  .amphi-body-layout{flex-direction:row;}
-  .amphi-sidebar{
-    display:flex;flex-direction:column;width:190px;flex-shrink:0;
-    border-right:1px solid var(--panel-line);padding:18px 12px;gap:4px;
+.amphi-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.amphi-logo {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+}
+
+.amphi-wordmark {
+  font-weight: 650;
+  font-size: clamp(19px, 2.5vw, 22px);
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.amphi-wordmark .am {
+  color: var(--text);
+}
+.amphi-wordmark .phi {
+  color: var(--gold);
+}
+
+.amphi-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.amphi-net-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 11px;
+  white-space: nowrap;
+}
+.amphi-net-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  flex-shrink: 0;
+}
+
+/* ---------- Live price strip ---------- */
+
+.amphi-prices {
+  border-bottom: 1px solid var(--line);
+  padding: 0 20px;
+}
+
+.amphi-prices-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.amphi-prices-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.amphi-price-item {
+  padding: 10px 16px 14px;
+  border-left: 1px solid var(--line-soft);
+}
+.amphi-price-item:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+
+.amphi-price-label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.amphi-price-value {
+  display: block;
+  font-size: clamp(15px, 1vw + 13px, 17px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.amphi-price-unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-left: 2px;
+}
+
+/* Below the desktop breakpoint the strip becomes one horizontally
+   scrollable row (scrollbar hidden) instead of wrapping into a grid,
+   so the page itself never scrolls sideways. */
+@media (max-width: 859px) {
+  .amphi-prices-grid {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
   }
-  .amphi-side-item{
-    padding:10px 12px;border-radius:9px;font-size:13px;color:var(--text-dim);
-    display:flex;align-items:center;gap:9px;cursor:pointer;background:none;border:none;text-align:left;width:100%;
+  .amphi-prices-grid::-webkit-scrollbar {
+    display: none;
   }
-  .amphi-side-item.active{background:#181D27;color:var(--gold);}
-  .amphi-side-dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
-  .amphi-side-item.active .amphi-side-dot{background:var(--gold);}
-
-  .amphi-content{padding:24px 28px;width:100%;}
-  .amphi-grid{grid-template-columns:1fr 1fr;gap:20px;}
+  .amphi-price-item {
+    flex: 0 0 auto;
+    min-width: 124px;
+    padding-left: 14px;
+  }
+  .amphi-price-item:first-child {
+    padding-left: 0;
+  }
 }
 
-/* ===== Logo & two-tone wordmark ===== */
-.amphi-logo{flex-shrink:0;width:30px;height:30px;}
-.amphi-wordmark{font-weight:700;font-size:26px;letter-spacing:0.2px;}
-.amphi-wordmark .am{color:var(--crypto);}
-.amphi-wordmark .phi{color:var(--gold);}
+/* ---------- Risk gauge ---------- */
 
-.amphi-notice-full{grid-column:1/-1;}
-.amphi-grid{align-items:start;}
-@media (min-width:860px){
-  .amphi-grid > .amphi-card{height:100%;}
+.amphi-gauge-wrap {
+  padding: 14px 20px 16px;
+  border-bottom: 1px solid var(--line);
+}
+.amphi-gauge-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.amphi-gauge-label span:first-child {
+  color: var(--crypto);
+}
+.amphi-gauge-label span:last-child {
+  color: var(--gold);
+}
+.amphi-gauge-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  position: relative;
+}
+.amphi-gauge-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 13px;
+  height: 13px;
+  background: #f2f3f5;
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 1px var(--line-strong);
+  border-radius: 50%;
+  transition: left 0.8s ease-in-out;
 }
 
-.amphi-input, .amphi-input option{color:var(--text) !important;}
-select.amphi-input{
-  -webkit-appearance:none;appearance:none;
-  background-color:#0F1319;color:var(--text);
-}
-.amphi-card-desc strong{color:var(--text);}
-.amphi-side-item{color:var(--text);}
-.amphi-side-item:not(.active){color:var(--text-dim);}
+/* ---------- Layout ---------- */
 
-@media (min-width:860px){.amphi-grid > .amphi-card{margin-bottom:0;}}
-@media (min-width:860px){.amphi-grid-full{grid-column:1 / -1;}}
+.amphi-body-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.amphi-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.amphi-content {
+  padding: 20px 20px 44px;
+}
+
+.amphi-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.amphi-notice-full,
+.amphi-grid-full {
+  grid-column: 1 / -1;
+}
+
+/* Mobile tabs (hidden on desktop, sidebar takes over) */
+.amphi-tabs {
+  display: flex;
+  padding: 14px 20px 0;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.amphi-tab {
+  flex: 1 1 30%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.amphi-tab:hover {
+  color: var(--text);
+}
+.amphi-tab.active {
+  background: var(--panel-raised);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+/* Desktop sidebar (hidden on mobile) */
+.amphi-sidebar {
+  display: none;
+}
+
+/* ---------- Cards ---------- */
+
+.amphi-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+/* Variants kept for class compatibility; the system uses one uniform
+   surface treatment for every card. */
+.amphi-card--gold,
+.amphi-card--crypto,
+.amphi-card--mix {
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+
+.amphi-card .amphi-card {
+  background: var(--panel-raised);
+}
+
+.amphi-card-title {
+  font-weight: 600;
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  color: var(--text);
+}
+.amphi-card-title > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.amphi-card-title > span svg {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+.amphi-card-title small {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.amphi-card-desc {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  line-height: 1.55;
+}
+.amphi-card-desc strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Label/value rows */
+.amphi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 12.5px;
+}
+.amphi-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.amphi-row:first-child {
+  padding-top: 0;
+}
+.amphi-row-label {
+  color: var(--text-dim);
+}
+.amphi-row-value {
+  color: var(--text);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Balance line under a token field */
+.amphi-balance-line {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 6px 2px 2px;
+}
+.amphi-balance-line strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Last-transaction link line */
+.amphi-txlink {
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+/* ---------- Buttons ---------- */
+
+.amphi-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  height: 44px;
+  margin-top: 12px;
+  padding: 0 16px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+/* Primary — the single gold accent. Both historical primary classes
+   resolve to the same treatment for consistency. */
+.amphi-btn-gold,
+.amphi-btn-crypto {
+  background: var(--gold);
+  color: var(--gold-ink);
+}
+.amphi-btn-gold:hover:not(:disabled),
+.amphi-btn-crypto:hover:not(:disabled) {
+  background: var(--gold-hover);
+}
+
+/* Ghost / secondary */
+.amphi-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  font: inherit;
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.amphi-btn.amphi-btn-ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--text-dim);
+}
+.amphi-btn-ghost:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--panel-raised);
+}
+
+.amphi-btn:disabled,
+.amphi-btn-ghost:disabled {
+  background: #1b1e24;
+  border-color: transparent;
+  color: #565c68;
+  cursor: not-allowed;
+}
+.amphi-btn-ghost:disabled {
+  background: transparent;
+  border-color: var(--line-soft);
+}
+
+/* Focus rings — consistent across interactive elements */
+.amphi-btn:focus-visible,
+.amphi-btn-ghost:focus-visible,
+.amphi-tab:focus-visible,
+.amphi-side-item:focus-visible,
+.amphi-seg-btn:focus-visible,
+.amphi-max-btn:focus-visible,
+.amphi-flip-btn:focus-visible,
+.amphi-copy-btn:focus-visible,
+.amphi-app a:focus-visible {
+  outline: 2px solid rgba(200, 164, 93, 0.65);
+  outline-offset: 2px;
+}
+
+/* Segmented control (token / commodity / duration pickers) */
+.amphi-seg {
+  display: flex;
+  gap: 4px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 4px;
+}
+.amphi-seg-btn {
+  flex: 1;
+  min-height: 40px;
+  padding: 7px 6px;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.amphi-seg-btn:hover {
+  color: var(--text);
+}
+.amphi-seg-btn.active {
+  background: var(--panel-raised);
+  border-color: var(--line);
+  color: var(--gold);
+}
+.amphi-seg-btn small {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-faint);
+  margin-top: 1px;
+}
+.amphi-seg-btn.active small {
+  color: var(--text-dim);
+}
+
+/* Max control — integrated as a full-height suffix segment of the
+   amount field, so its touch target is the full field height. */
+.amphi-max-btn {
+  flex-shrink: 0;
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 -13px 0 2px;
+  padding: 0 15px;
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.amphi-max-btn:hover {
+  color: var(--gold);
+}
+
+/* Small copy button (profile address) */
+.amphi-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.amphi-copy-btn:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+/* Swap flip button */
+.amphi-flip-row {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 2px;
+}
+.amphi-flip-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, transform 0.25s ease;
+}
+.amphi-flip-btn:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+  transform: rotate(180deg);
+}
+
+/* ---------- Fields & inputs ---------- */
+
+.amphi-field {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 0 13px;
+  min-height: 48px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.amphi-field:focus-within {
+  border-color: var(--line-strong);
+  box-shadow: 0 0 0 3px rgba(200, 164, 93, 0.14);
+}
+
+.amphi-input {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  width: 100%;
+  min-width: 0;
+  outline: none;
+}
+.amphi-input::placeholder {
+  color: var(--text-faint);
+}
+.amphi-input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.amphi-input[type="number"]::-webkit-outer-spin-button,
+.amphi-input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+select.amphi-input {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa1ac' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 2px center;
+}
+select.amphi-input option {
+  background: var(--panel-raised);
+  color: var(--text);
+}
+
+/* ---------- Notices, quota, toast ---------- */
+
+.amphi-notice {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  margin-top: 10px;
+  padding: 8px 0 2px;
+  line-height: 1.5;
+}
+.amphi-notice--warn {
+  color: var(--gold);
+}
+
+.amphi-quota-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: #1c1f24;
+  margin-top: 10px;
+  overflow: hidden;
+}
+.amphi-quota-fill {
+  height: 100%;
+  background: var(--gold);
+}
+.amphi-quota-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+.amphi-quota-text span:last-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.amphi-toast {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 11px 14px;
+  font-size: 12.5px;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 50;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+.amphi-toast--success {
+  border-color: var(--good);
+}
+.amphi-toast--error {
+  border-color: var(--bad);
+}
+.amphi-toast--info {
+  border-color: var(--info);
+}
+.amphi-toast a {
+  font-size: 11.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.amphi-placeholder {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12.5px;
+  padding: 40px 0;
+  grid-column: 1 / -1;
+}
+
+.spinIcon {
+  animation: amphi-spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes amphi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Footer ---------- */
+
+.amphi-footer {
+  border-top: 1px solid var(--line);
+  padding: 22px 20px 30px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text-faint);
+  line-height: 1.7;
+}
+.amphi-footer a {
+  color: var(--text-dim);
+}
+.amphi-footer a:hover {
+  color: var(--gold);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 640px) {
+  .amphi-header {
+    padding: 14px 16px;
+  }
+  .amphi-prices {
+    padding: 0 16px;
+  }
+  .amphi-gauge-wrap {
+    padding: 12px 16px 14px;
+  }
+  .amphi-tabs {
+    padding: 12px 16px 0;
+  }
+  .amphi-content {
+    padding: 16px 16px 36px;
+  }
+  .amphi-card {
+    padding: 16px;
+  }
+  .amphi-seg-btn {
+    min-height: 44px;
+  }
+  .amphi-footer {
+    padding: 20px 16px 26px;
+  }
+  .amphi-row-value {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+}
+
+/* ---------- Desktop ---------- */
+
+@media (min-width: 860px) {
+  .amphi-tabs {
+    display: none;
+  }
+  .amphi-body-layout {
+    flex-direction: row;
+  }
+  .amphi-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--line);
+    padding: 20px 12px;
+    gap: 4px;
+  }
+  .amphi-side-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    border-radius: var(--r-sm);
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text-dim);
+    cursor: pointer;
+    background: none;
+    border: 1px solid transparent;
+    text-align: left;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .amphi-side-item:hover {
+    color: var(--text);
+  }
+  .amphi-side-item svg {
+    flex-shrink: 0;
+  }
+  .amphi-side-item.active {
+    background: var(--panel-raised);
+    border-color: var(--line);
+    color: var(--text);
+  }
+  .amphi-side-item.active svg {
+    color: var(--gold);
+  }
+  .amphi-side-dot {
+    display: none;
+  }
+
+  .amphi-content {
+    padding: 24px 28px 48px;
+  }
+  .amphi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .amphi-grid > .amphi-card {
+    margin-bottom: 0;
+    height: 100%;
+  }
+}

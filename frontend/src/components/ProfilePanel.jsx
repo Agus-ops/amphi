@@ -109,7 +109,7 @@ export function ProfilePanel({ isConnected, isRightChain }) {
         <div className="amphi-card-title"><span><User size={13} /> {getGreeting()}</span></div>
         <div className="amphi-card-desc" style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6 }}>
           <span>{address?.slice(0, 10)}…{address?.slice(-8)}</span>
-          <button className="amphi-btn-ghost" onClick={copyAddress} type="button" style={{ padding: "2px 6px", borderRadius: 6, fontSize: 10 }}>
+          <button className="amphi-copy-btn" onClick={copyAddress} type="button">
             <Copy size={11} /> {copied ? "Copied" : "Copy"}
           </button>
           <a href={explorerAddr(address)} target="_blank" rel="noreferrer" style={{ fontSize: 10 }}>
@@ -121,12 +121,10 @@ export function ProfilePanel({ isConnected, isRightChain }) {
 
       <div className="amphi-card amphi-card--crypto">
         <div className="amphi-card-title"><span>Balances</span></div>
-        <div className="amphi-card-desc" style={{ marginTop: 6 }}>
-          ETH: <strong>{ethBalance ? fmtAmt(Number(formatUnits(ethBalance.value, 18))) : "…"}</strong><br />
+        <div style={{ marginTop: 10 }}>
+          <div className="amphi-row"><span className="amphi-row-label">ETH</span><span className="amphi-row-value">{ethBalance ? fmtAmt(Number(formatUnits(ethBalance.value, 18))) : "…"}</span></div>
           {tokenBalances.map((t) => (
-            <span key={t.symbol}>
-              {t.symbol}: <strong>{t.amount != null ? fmtAmt(t.amount, 2) : "…"}</strong><br />
-            </span>
+            <div className="amphi-row" key={t.symbol}><span className="amphi-row-label">{t.symbol}</span><span className="amphi-row-value">{t.amount != null ? fmtAmt(t.amount, 2) : "…"}</span></div>
           ))}
         </div>
       </div>
@@ -136,9 +134,9 @@ export function ProfilePanel({ isConnected, isRightChain }) {
         {activePositions.length === 0 ? (
           <div className="amphi-card-desc">No active vault positions yet.</div>
         ) : (
-          <div className="amphi-card-desc">
+          <div style={{ marginTop: 10 }}>
             {activePositions.map((v) => (
-              <span key={v.id}>{v.name}: <strong>{fmtAmt(v.amount, 4)} m{v.name}</strong> locked<br /></span>
+              <div className="amphi-row" key={v.id}><span className="amphi-row-label">{v.name}</span><span className="amphi-row-value">{fmtAmt(v.amount, 4)} m{v.name} locked</span></div>
             ))}
           </div>
         )}
@@ -146,11 +144,11 @@ export function ProfilePanel({ isConnected, isRightChain }) {
 
       <div className="amphi-card amphi-card--mix">
         <div className="amphi-card-title"><span><Activity size={13} /> Activity</span></div>
-        <div className="amphi-card-desc" style={{ marginTop: 6 }}>
-          {statsLoading ? "Loading…" : !stats ? "Could not load activity data." : (
+        <div style={{ marginTop: 10 }}>
+          {statsLoading ? <div className="amphi-card-desc">Loading…</div> : !stats ? <div className="amphi-card-desc">Could not load activity data.</div> : (
             <>
-              Total transactions: <strong>{stats.transactions_count ?? "—"}</strong><br />
-              Token transfers: <strong>{stats.token_transfers_count ?? "—"}</strong>
+              <div className="amphi-row"><span className="amphi-row-label">Total transactions</span><span className="amphi-row-value">{stats.transactions_count ?? "—"}</span></div>
+              <div className="amphi-row"><span className="amphi-row-label">Token transfers</span><span className="amphi-row-value">{stats.token_transfers_count ?? "—"}</span></div>
             </>
           )}
         </div>
