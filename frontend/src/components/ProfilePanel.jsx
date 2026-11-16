@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useAccount, useBalance, useReadContracts } from "wagmi";
 import { formatUnits } from "viem";
 import { User, Copy, ExternalLink, Activity } from "lucide-react";
-import { TOKENS, VAULTS } from "../contracts/contracts";
+import { TOKENS, VAULTS, POOLS } from "../contracts/contracts";
 import { ERC20_ABI, VAULT_ABI } from "../contracts/abis";
 import { GIWA_SEPOLIA } from "../config/chains";
 
@@ -21,6 +21,26 @@ const VAULT_LIST = [
   { id: "silver", name: "Silver", address: VAULTS.silver },
   { id: "platinum", name: "Platinum", address: VAULTS.platinum },
 ];
+
+const POOL_LIST = [
+  { id: "USDC_BTC", label: "USDC–BTC", address: POOLS.USDC_BTC },
+  { id: "USDC_ETH", label: "USDC–ETH", address: POOLS.USDC_ETH },
+  { id: "USDC_SOL", label: "USDC–SOL", address: POOLS.USDC_SOL },
+  { id: "USDC_Gold", label: "USDC–Gold", address: POOLS.USDC_Gold },
+  { id: "USDC_Silver", label: "USDC–Silver", address: POOLS.USDC_Silver },
+  { id: "USDC_Platinum", label: "USDC–Platinum", address: POOLS.USDC_Platinum },
+];
+
+function fmtCountdown(unlockTime, nowSec) {
+  const diff = unlockTime - nowSec;
+  if (diff <= 0) return "Ready to unlock";
+  const d = Math.floor(diff / 86400);
+  const h = Math.floor((diff % 86400) / 3600);
+  const m = Math.floor((diff % 3600) / 60);
+  if (d > 0) return `Unlocks in ${d}d ${h}h`;
+  if (h > 0) return `Unlocks in ${h}h ${m}m`;
+  return `Unlocks in ${m}m`;
+}
 
 function getGreeting() {
   const h = new Date().getHours();
@@ -43,6 +63,12 @@ export function ProfilePanel({ isConnected, isRightChain }) {
   const [copied, setCopied] = useState(false);
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(false);
+  const [nowSec, setNowSec] = useState(() => Math.floor(Date.now() / 1000));
+
+  useEffect(() => {
+    const id = setInterval(() => setNowSec(Math.floor(Date.now() / 1000)), 30000);
+    return () => clearInterval(id);
+  }, []);
 
   const explorerAddr = (addr) => `${GIWA_SEPOLIA.explorerUrl}/address/${addr}`;
 
@@ -74,6 +100,26 @@ export function ProfilePanel({ isConnected, isRightChain }) {
     query: { enabled: !!address },
   });
 
+  const { data: rewardData } = useReadContracts({
+    contracts: VAULT_LIST.map((v) => ({
+      address: v.address,
+      abi: VAULT_ABI,
+      functionName: "pendingReward",
+      args: [address],
+    })),
+    query: { enabled: !!address },
+  });
+
+  const { data: lpData } = useReadContracts({
+    contracts: POOL_LIST.map((p) => ({
+      address: p.address,
+      abi: ERC20_ABI,
+      functionName: "balanceOf",
+      args: [address],
+    })),
+    query: { enabled: !!address },
+  });
+
   useEffect(() => {
     if (!address) return;
     let cancelled = false;
@@ -98,10 +144,19 @@ export function ProfilePanel({ isConnected, isRightChain }) {
   const vaultPositions = VAULT_LIST.map((v, i) => {
     const res = positionData?.[i]?.result;
     const amount = res ? Number(formatUnits(res[0], 18)) : 0;
-    return { ...v, amount, hasPosition: amount > 0 };
+    const unlockTime = res ? Number(res[2]) : 0;
+    const rewardRes = rewardData?.[i]?.result;
+    const pendingReward = rewardRes != null ? Number(formatUnits(rewardRes, 18)) : null;
+    return { ...v, amount, unlockTime, pendingReward, hasPosition: amount > 0 };
   });
 
   const activePositions = vaultPositions.filter((v) => v.hasPosition);
+
+  const lpPositions = POOL_LIST.map((p, i) => ({
+    ...p,
+    amount: lpData?.[i]?.result != null ? Number(formatUnits(lpData[i].result, 18)) : 0,
+  }));
+  const activeLps = lpPositions.filter((p) => p.amount > 0);
 
   return (
     <>
@@ -136,7 +191,26 @@ export function ProfilePanel({ isConnected, isRightChain }) {
         ) : (
           <div style={{ marginTop: 10 }}>
             {activePositions.map((v) => (
-              <div className="amphi-row" key={v.id}><span className="amphi-row-label">{v.name}</span><span className="amphi-row-value">{fmtAmt(v.amount, 4)} m{v.name} locked</span></div>
+              <Fragment key={v.id}>
+                <div className="amphi-row"><span className="amphi-row-label">{v.name}</span><span className="amphi-row-value">{fmtAmt(v.amount, 4)} m{v.name} locked</span></div>
+                <div className="amphi-row"><span className="amphi-row-label">Maturity</span><span className="amphi-row-value">{v.unlockTime ? `${fmtCountdown(v.unlockTime, nowSec)} · ${new Date(v.unlockTime * 1000).toLocaleDateString()}` : "—"}</span></div>
+                {v.pendingReward != null && v.pendingReward > 0 && (
+                  <div className="amphi-row"><span className="amphi-row-label">Pending reward</span><span className="amphi-row-value">{fmtAmt(v.pendingReward, 6)} ETH</span></div>
+                )}
+              </Fragment>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="amphi-card amphi-card--crypto">
+        <div className="amphi-card-title"><span>Liquidity Positions</span></div>
+        {activeLps.length === 0 ? (
+          <div className="amphi-card-desc">No liquidity positions yet.</div>
+        ) : (
+          <div style={{ marginTop: 10 }}>
+            {activeLps.map((p) => (
+              <div className="amphi-row" key={p.id}><span className="amphi-row-label">{p.label}</span><span className="amphi-row-value">{fmtAmt(p.amount, 6)} LP</span></div>
             ))}
           </div>
         )}

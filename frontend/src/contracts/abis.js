@@ -8,6 +8,7 @@ export const ERC20_ABI = [
 ];
 
 export const ROUTER_ABI = [
+  { type:'function', name:'getAmountsOut', inputs:[ {name:'amountIn',type:'uint256'},{name:'path',type:'address[]'} ], outputs:[{name:'amounts',type:'uint256[]'}], stateMutability:'view' },
   { type:'function', name:'addLiquidity', inputs:[ {name:'tokenA',type:'address'},{name:'tokenB',type:'address'}, {name:'amountADesired',type:'uint256'},{name:'amountBDesired',type:'uint256'}, {name:'amountAMin',type:'uint256'},{name:'amountBMin',type:'uint256'}, {name:'to',type:'address'},{name:'deadline',type:'uint256'} ], outputs:[{name:'amountA',type:'uint256'},{name:'amountB',type:'uint256'},{name:'liquidity',type:'uint256'}], stateMutability:'nonpayable' },
   { type:'function', name:'swapExactTokensForTokens', inputs:[ {name:'amountIn',type:'uint256'},{name:'amountOutMin',type:'uint256'}, {name:'path',type:'address[]'},{name:'to',type:'address'},{name:'deadline',type:'uint256'} ], outputs:[{name:'amountOut',type:'uint256'}], stateMutability:'nonpayable' }
 ];
@@ -41,6 +42,7 @@ export const FACTORY_ABI = [
 
 export const ORACLE_ABI = [
   { type:'function', name:'isStale', inputs:[], outputs:[{name:'',type:'bool'}], stateMutability:'view' },
+  { type:'function', name:'lastUpdate', inputs:[], outputs:[{name:'',type:'uint256'}], stateMutability:'view' },
   { type:'function', name:'getEthUsd', inputs:[], outputs:[{name:'',type:'uint256'}], stateMutability:'view' },
   { type:'function', name:'getBtcUsd', inputs:[], outputs:[{name:'',type:'uint256'}], stateMutability:'view' },
   { type:'function', name:'getSolUsd', inputs:[], outputs:[{name:'',type:'uint256'}], stateMutability:'view' },

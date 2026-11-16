@@ -178,6 +178,25 @@ body {
   color: var(--text-faint);
 }
 
+.amphi-oracle-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.amphi-oracle-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--good);
+  flex-shrink: 0;
+}
+.amphi-oracle-status.is-stale {
+  color: var(--bad);
+}
+.amphi-oracle-status.is-stale .amphi-oracle-dot {
+  background: var(--bad);
+}
+
 .amphi-prices-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);

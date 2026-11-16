@@ -44,6 +44,7 @@ export function SwapPanel({ isConnected, isRightChain }) {
   const balanceIn = balanceData?.[0]?.result != null ? Number(formatUnits(balanceData[0].result, 18)) : null;
   const balanceOut = balanceData?.[1]?.result != null ? Number(formatUnits(balanceData[1].result, 18)) : null;
   const [amount, setAmount] = useState("");
+  const [quote, setQuote] = useState(null);
   const [isDirectRoute, setIsDirectRoute] = useState(true);
   
   const [busy, setBusy] = useState(false);
@@ -79,6 +80,49 @@ export function SwapPanel({ isConnected, isRightChain }) {
     : [tokenIn.address, TOKENS.mUSDC, tokenOut.address];
 
   const routeDisplay = routePath.length === 2 ? `${tokenIn.symbol} → ${tokenOut.symbol}` : `${tokenIn.symbol} → mUSDC → ${tokenOut.symbol}`;
+  const routePathKey = routePath.join(",");
+  const quoteKey = `${amountNum}|${routePathKey}`;
+
+  // Live quote: estimated output from the router + price impact vs the pools' spot rate.
+  useEffect(() => {
+    setQuote(null);
+    if (!publicClient || amountNum <= 0 || tokenIn.address === tokenOut.address) return;
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        const parsed = parseUnits(String(amountNum), 18);
+        const amounts = await publicClient.readContract({
+          address: ROUTER, abi: ROUTER_ABI, functionName: "getAmountsOut", args: [parsed, routePath],
+        });
+        const out = amounts[amounts.length - 1];
+        let spotOut = null;
+        try {
+          let spot = amountNum;
+          for (let i = 0; i < routePath.length - 1; i++) {
+            const pair = await publicClient.readContract({
+              address: FACTORY, abi: FACTORY_ABI, functionName: "getPair", args: [routePath[i], routePath[i + 1]],
+            });
+            if (!pair || pair === "0x0000000000000000000000000000000000000000") { spot = null; break; }
+            const [balIn, balOut] = await Promise.all([
+              publicClient.readContract({ address: routePath[i], abi: ERC20_ABI, functionName: "balanceOf", args: [pair] }),
+              publicClient.readContract({ address: routePath[i + 1], abi: ERC20_ABI, functionName: "balanceOf", args: [pair] }),
+            ]);
+            const rIn = Number(formatUnits(balIn, 18));
+            const rOut = Number(formatUnits(balOut, 18));
+            if (rIn <= 0 || rOut <= 0) { spot = null; break; }
+            spot = spot * (rOut / rIn);
+          }
+          spotOut = spot;
+        } catch { spotOut = null; }
+        if (cancelled) return;
+        const outNum = Number(formatUnits(out, 18));
+        const impact = spotOut && spotOut > 0 ? Math.max(0, (1 - outNum / spotOut) * 100) : null;
+        setQuote({ out, outNum, impact, key: quoteKey });
+      } catch { if (!cancelled) setQuote(null); }
+    }, 400);
+    return () => { cancelled = true; clearTimeout(timer); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [publicClient, quoteKey]);
 
   async function runSwap() {
     if (!address || !publicClient || busy) return;
@@ -96,9 +140,10 @@ export function SwapPanel({ isConnected, isRightChain }) {
       }
       
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 600);
+      const minOut = quote && quote.key === quoteKey && quote.out > 0n ? (quote.out * 99n) / 100n : 0n;
       const hash = await writeContractAsync({
         address: ROUTER, abi: ROUTER_ABI, functionName: "swapExactTokensForTokens",
-        args: [parsed, 0n, routePath, address, deadline],
+        args: [parsed, minOut, routePath, address, deadline],
       });
 
       showToast("info", "Swap submitted…", hash);
@@ -151,6 +196,17 @@ export function SwapPanel({ isConnected, isRightChain }) {
           Balance: <strong>{balanceOut != null ? balanceOut.toLocaleString(undefined, { maximumFractionDigits: 4 }) : "…"} {tokenOut.symbol}</strong>
         </div>
         <div className="amphi-card-desc" style={{ marginTop: 10 }}>Route: {routeDisplay}</div>
+        {amountNum > 0 && tokenIn.address !== tokenOut.address && (
+          quote && quote.key === quoteKey ? (
+            <>
+              <div className="amphi-quota-text" style={{ marginTop: 6 }}><span>You receive (est.):</span><span>{quote.outNum.toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenOut.symbol}</span></div>
+              {quote.impact != null && <div className="amphi-quota-text"><span>Price impact (est.):</span><span style={quote.impact > 5 ? { color: "var(--bad)" } : undefined}>~{quote.impact.toFixed(2)}%</span></div>}
+              <div className="amphi-quota-text"><span>Min. received (1% slippage):</span><span>{(quote.outNum * 0.99).toLocaleString(undefined, { maximumFractionDigits: 6 })} {tokenOut.symbol}</span></div>
+            </>
+          ) : (
+            <div className="amphi-card-desc" style={{ marginTop: 6 }}>Fetching quote…</div>
+          )
+        )}
         
         {!isConnected ? <div className="amphi-notice">Connect your wallet to swap</div>
         : !isRightChain ? <div className="amphi-notice amphi-notice--warn">Wrong network — switch to GIWA Sepolia</div>

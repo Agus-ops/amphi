@@ -21,6 +21,9 @@ export function FaucetPanel({ isConnected, isRightChain }) {
   
   const [commType, setCommType] = useState("Gold");
   const [remainingBudget, setRemainingBudget] = useState(0);
+  const [spentTodayEth, setSpentTodayEth] = useState(0);
+  const [dailyCapEth, setDailyCapEth] = useState(0);
+  const [resetIn, setResetIn] = useState("");
   const [maxPerTx, setMaxPerTx] = useState(0);
   const [ethAmount, setEthAmount] = useState("");
   
@@ -70,6 +73,8 @@ export function FaucetPanel({ isConnected, isRightChain }) {
           if (!cancelled && ethUsdNum > 0) {
             setMaxPerTx(maxTxUsd / ethUsdNum);
             setRemainingBudget(remainingUsd / ethUsdNum);
+            setSpentTodayEth(spentTodayUsd / ethUsdNum);
+            setDailyCapEth(maxDailyUsdNum / ethUsdNum);
           }
         } catch {}
       }
@@ -78,6 +83,22 @@ export function FaucetPanel({ isConnected, isRightChain }) {
     const id = setInterval(refresh, 15000);
     return () => { cancelled = true; clearInterval(id); };
   }, [publicClient, address]);
+
+  // Premium-faucet daily quota follows UTC days on-chain; tick a countdown to the next reset.
+  useEffect(() => {
+    function tick() {
+      const now = new Date();
+      const nextUtcMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0);
+      let secs = Math.max(0, Math.floor((nextUtcMidnight - now.getTime()) / 1000));
+      const h = String(Math.floor(secs / 3600)).padStart(2, "0");
+      const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+      const s = String(secs % 60).padStart(2, "0");
+      setResetIn(`${h}:${m}:${s}`);
+    }
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const ethNum = parseFloat(String(ethAmount).replace(",", ".")) || 0;
   const canClaim = isConnected && isRightChain && !oracleStale && !alreadyClaimed && !busyFaucet;
@@ -135,6 +156,9 @@ export function FaucetPanel({ isConnected, isRightChain }) {
       <div className="amphi-card amphi-card--crypto">
         <div className="amphi-card-title"><span><Gift size={13} /> Official Faucet</span><small>1× per address</small></div>
         <div className="amphi-card-desc">Claim starter pack of mUSDC, mBTC, mETH, mSOL, mGold, mSilver, and mPlatinum.</div>
+        {isConnected && isRightChain && (
+          <div className="amphi-quota-text" style={{ marginTop: 8 }}><span>Status:</span><span>{alreadyClaimed ? "Claimed ✓" : "Available — not claimed yet"}</span></div>
+        )}
         {!isConnected ? <div className="amphi-notice">Connect your wallet to claim</div>
         : !isRightChain ? <div className="amphi-notice amphi-notice--warn">Wrong network — switch to GIWA Sepolia</div>
         : alreadyClaimed ? <div className="amphi-notice">This address has already claimed the faucet</div>
@@ -157,6 +181,8 @@ export function FaucetPanel({ isConnected, isRightChain }) {
         </div>
         
         <div className="amphi-quota-text" style={{ marginTop: 8 }}><span>Daily budget remaining:</span><span>{fmtAmt(remainingBudget, 2)} ETH</span></div>
+        <div className="amphi-quota-text"><span>Used today:</span><span>{fmtAmt(spentTodayEth, 4)} ETH of {fmtAmt(dailyCapEth, 2)} ETH cap</span></div>
+        <div className="amphi-quota-text"><span>Quota resets in:</span><span>{resetIn} (00:00 UTC)</span></div>
         
         {!isConnected ? <div className="amphi-notice">Connect your wallet to buy</div>
         : !isRightChain ? <div className="amphi-notice amphi-notice--warn">Wrong network</div>
