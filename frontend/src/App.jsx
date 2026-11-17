@@ -49,6 +49,8 @@ export default function App() {
   const { data: oracleLastUpdate } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "lastUpdate", query: { refetchInterval: 30000 } });
 
   const oracleIsStale = oracleStaleData === true;
+  // Fail-closed: belum terbaca != Live. Label "Live" hanya bila isStale terbaca eksplisit false.
+  const oracleUnknown = oracleStaleData === undefined;
   const lastUpdateTs = oracleLastUpdate ? Number(oracleLastUpdate) : null;
 
   const ethNum = ethUsdData ? Number(ethUsdData) / 1e8 : null;
@@ -126,7 +128,7 @@ export default function App() {
       </header>
 
       <section className="amphi-prices" aria-label="Live oracle prices">
-        <div className="amphi-prices-head"><span>Live oracle prices</span><span className={`amphi-oracle-status ${oracleIsStale ? "is-stale" : ""}`}><span className="amphi-oracle-dot"></span>{oracleIsStale ? "Oracle stale" : "Live"}{lastUpdateTs ? ` · updated ${new Date(lastUpdateTs * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}</span></div>
+        <div className="amphi-prices-head"><span>Live oracle prices</span><span className={`amphi-oracle-status ${oracleIsStale || oracleUnknown ? "is-stale" : ""}`}><span className="amphi-oracle-dot"></span>{oracleIsStale ? "Oracle stale" : oracleUnknown ? "Checking oracle" : "Live"}{lastUpdateTs ? ` · updated ${new Date(lastUpdateTs * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}</span></div>
         <div className="amphi-prices-grid">
           {PRICES.map((p) => (
             <div className="amphi-price-item" key={p.label}>

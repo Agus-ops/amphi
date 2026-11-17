@@ -25,6 +25,10 @@ export function SwapPanel({ isConnected, isRightChain }) {
 
   const { officialTokens, isLoading: registryLoading } = useOfficialTokens();
   const { data: oracleStale } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "isStale" });
+  // Fail-closed (temuan Mega/Xue Yi, 17 Nov 2026): status oracle yang belum terbaca
+  // (undefined saat loading/error) TIDAK dianggap segar. Swap hanya boleh jalan
+  // setelah isStale terbaca eksplisit `false`.
+  const oracleUnknown = oracleStale === undefined;
 
   // Fallback ke TOKEN_LIST statis selagi registry belum kebaca, supaya UI tidak kosong.
   const safeTokenList = (!registryLoading && officialTokens.length > 0)
@@ -73,7 +77,6 @@ export function SwapPanel({ isConnected, isRightChain }) {
   }, [publicClient, tokenIn, tokenOut]);
 
   const amountNum = parseFloat(String(amount).replace(",", ".")) || 0;
-  const canSwap = isConnected && isRightChain && !busy && !oracleStale && amountNum > 0 && tokenIn.address !== tokenOut.address;
 
   const routePath = isDirectRoute || tokenIn.address === TOKENS.mUSDC || tokenOut.address === TOKENS.mUSDC
     ? [tokenIn.address, tokenOut.address]
@@ -82,6 +85,10 @@ export function SwapPanel({ isConnected, isRightChain }) {
   const routeDisplay = routePath.length === 2 ? `${tokenIn.symbol} → ${tokenOut.symbol}` : `${tokenIn.symbol} → mUSDC → ${tokenOut.symbol}`;
   const routePathKey = routePath.join(",");
   const quoteKey = `${amountNum}|${routePathKey}`;
+  // Fail-closed: tanpa quote yang valid untuk input saat ini, swap TIDAK bisa jalan —
+  // tidak ada lagi jalur amountOutMin = 0.
+  const quoteValid = !!(quote && quote.key === quoteKey && quote.out > 0n);
+  const canSwap = isConnected && isRightChain && !busy && oracleStale === false && quoteValid && amountNum > 0 && tokenIn.address !== tokenOut.address;
 
   // Live quote: estimated output from the router + price impact vs the pools' spot rate.
   useEffect(() => {
@@ -127,6 +134,8 @@ export function SwapPanel({ isConnected, isRightChain }) {
   async function runSwap() {
     if (!address || !publicClient || busy) return;
     if (tokenIn.address === tokenOut.address) { showToast("error", "Select different tokens"); return; }
+    if (!quoteValid) { showToast("error", "No valid quote yet — swap blocked"); return; }
+    if (oracleStale !== false) { showToast("error", "Oracle status not confirmed fresh — swap blocked"); return; }
     setBusy(true);
     try {
       const parsed = parseUnits(String(amountNum), 18);
@@ -140,7 +149,7 @@ export function SwapPanel({ isConnected, isRightChain }) {
       }
       
       const deadline = BigInt(Math.floor(Date.now() / 1000) + 600);
-      const minOut = quote && quote.key === quoteKey && quote.out > 0n ? (quote.out * 99n) / 100n : 0n;
+      const minOut = (quote.out * 99n) / 100n; // quoteValid sudah ditegakkan di atas — fallback ke 0 dihapus.
       const hash = await writeContractAsync({
         address: ROUTER, abi: ROUTER_ABI, functionName: "swapExactTokensForTokens",
         args: [parsed, minOut, routePath, address, deadline],
@@ -165,6 +174,7 @@ export function SwapPanel({ isConnected, isRightChain }) {
       )}
 
       {oracleStale && <div className="amphi-card amphi-notice amphi-notice--warn amphi-notice-full">Oracle prices are updating, swaps paused.</div>}
+      {oracleUnknown && <div className="amphi-card amphi-notice amphi-notice--warn amphi-notice-full">Checking oracle status, swaps paused until confirmed fresh.</div>}
 
       <div className="amphi-card amphi-card--mix amphi-notice-full">
         <div className="amphi-card-title">Swap Tokens</div>
