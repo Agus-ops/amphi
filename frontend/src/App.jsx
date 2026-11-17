@@ -45,12 +45,14 @@ export default function App() {
   const { data: goldGramData } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "getGoldPricePerGram" });
   const { data: silverGramData } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "getSilverPricePerGram" });
   const { data: platinumGramData } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "getPlatinumPricePerGram" });
-  const { data: oracleStaleData } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "isStale", query: { refetchInterval: 30000 } });
+  const { data: oracleStaleData, isError: oracleStaleError, isRefetchError: oracleStaleRefetchError } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "isStale", query: { refetchInterval: 30000 } });
   const { data: oracleLastUpdate } = useReadContract({ address: ORACLE, abi: ORACLE_ABI, functionName: "lastUpdate", query: { refetchInterval: 30000 } });
 
   const oracleIsStale = oracleStaleData === true;
   // Fail-closed: belum terbaca != Live. Label "Live" hanya bila isStale terbaca eksplisit false.
   const oracleUnknown = oracleStaleData === undefined;
+  // data wagmi = hasil sukses terakhir; refresh yang gagal tidak boleh tetap tampil "Live".
+  const oracleReadFailed = oracleStaleError || oracleStaleRefetchError;
   const lastUpdateTs = oracleLastUpdate ? Number(oracleLastUpdate) : null;
 
   const ethNum = ethUsdData ? Number(ethUsdData) / 1e8 : null;
@@ -128,7 +130,7 @@ export default function App() {
       </header>
 
       <section className="amphi-prices" aria-label="Live oracle prices">
-        <div className="amphi-prices-head"><span>Live oracle prices</span><span className={`amphi-oracle-status ${oracleIsStale || oracleUnknown ? "is-stale" : ""}`}><span className="amphi-oracle-dot"></span>{oracleIsStale ? "Oracle stale" : oracleUnknown ? "Checking oracle" : "Live"}{lastUpdateTs ? ` · updated ${new Date(lastUpdateTs * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}</span></div>
+        <div className="amphi-prices-head"><span>Live oracle prices</span><span className={`amphi-oracle-status ${oracleIsStale || oracleUnknown || oracleReadFailed ? "is-stale" : ""}`}><span className="amphi-oracle-dot"></span>{oracleIsStale ? "Oracle stale" : oracleReadFailed ? "Oracle error" : oracleUnknown ? "Checking oracle" : "Live"}{lastUpdateTs ? ` · updated ${new Date(lastUpdateTs * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}</span></div>
         <div className="amphi-prices-grid">
           {PRICES.map((p) => (
             <div className="amphi-price-item" key={p.label}>
